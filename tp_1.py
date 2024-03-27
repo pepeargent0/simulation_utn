@@ -26,7 +26,6 @@ if args.corridas and args.numero_tiradas and args.numero_eleguido:
                 data[corrida][key] = 1
     print('frecuencia Absoluta:', frecuencia_absoluta)
     print('freciencia relativa: ', frecuencia_absoluta/(args.numero_tiradas*args.corridas))
-    print(data)
 else:
     print(' Los valores -c -n -e son obligatorios')
     exit()
