@@ -38,7 +38,7 @@ class RouletteSimulation:
             total_rolls = sum(run)
             fr = run[self.chosen_number] / total_rolls if self.chosen_number in run else 0
             fre = 1 / 36
-            frn = (fre * self.number_runs)
+            frn = fre / self.number_runs
             # dejo este print porque tengo un duda FRN me da mayor que 1 cundo c > 40
             print(f'FRN: {frn} fre: {fre} FR {fr} N: {self.number_runs}')
             frequencies['FR'].append(fr)
