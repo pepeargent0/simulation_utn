@@ -21,7 +21,7 @@ class RouletteSimulation:
                 if _key == self.chosen_number:
                     self.frequency_absolute += 1
                 current_run[_key] += 1
-            self.calculate_average_values(current_run, rolls + 1)
+                self.calculate_average_values(current_run, rolls + 1)
             self.results.append(current_run)
         frequency_relative = self.frequency_absolute / (self.number_runs * self.number_rolls)
         return self.results, self.frequency_absolute, frequency_relative
@@ -29,7 +29,7 @@ class RouletteSimulation:
     def calculate_average_values(self, current_run, n):
         vp = sum([i * current_run[i] for i in range(37)]) / sum(current_run)
         vpn = vp / n
-        vpe = sum([i * (1/36) for i in range(37)])
+        vpe = sum([i * (1 / 36) for i in range(37)])
         self.average_values.append((vp, vpn, vpe))
 
     def get_frequencies(self):
@@ -39,7 +39,7 @@ class RouletteSimulation:
             fr = run[self.chosen_number] / total_rolls if self.chosen_number in run else 0
             fre = 1 / 36
             frn = (fre * self.number_runs)
-            #dejo este print porque tengo un duda FRN me da mayor que 1 cundo c > 40
+            # dejo este print porque tengo un duda FRN me da mayor que 1 cundo c > 40
             print(f'FRN: {frn} fre: {fre} FR {fr} N: {self.number_runs}')
             frequencies['FR'].append(fr)
             frequencies['FRE'].append(fre)
@@ -69,6 +69,7 @@ class RouletteSimulation:
             vde = math.sqrt((1 / 36) * (1 - 1 / 36))
             deviations.append((vd, vdxn, vde))
         return deviations
+
     def show_vp_vpe_vpn(self):
         average_values = self.average_values
 
@@ -79,7 +80,8 @@ class RouletteSimulation:
         plt.figure(figsize=(10, 6))
         plt.plot(range(1, len(vp_values) + 1), vp_values, label='Valor Promedio de las Tiradas', marker='o')
         plt.plot(range(1, len(vpe_values) + 1), vpe_values, label='Valor Promedio Esperado', marker='o')
-        plt.plot(range(1, len(vpn_values) + 1), vpn_values, label='Valor Promedio de las Tiradas respecto a N', marker='o')
+        plt.plot(range(1, len(vpn_values) + 1), vpn_values, label='Valor Promedio de las Tiradas respecto a N',
+                 marker='o')
         plt.xlabel('Iteración de la Simulación')
         plt.ylabel('Valor')
         plt.title('Valores Promedio por Iteración')
@@ -134,6 +136,7 @@ class RouletteSimulation:
         plt.legend()
         plt.grid(True)
         plt.show()
+
 
 parser = argparse.ArgumentParser(description='Simulacion de ruleta')
 parser.add_argument('-c', '--numero_corridas', type=int, help='Corridas')
