@@ -37,9 +37,8 @@ class Ruleta:
     def graficar_frecuencia_relativa(self):
         plt.figure(figsize=(20, 10))
         for i, corrida in enumerate(self.resultados, start=1):
-            plt.plot(corrida)
             plt.plot(range(self.cantidad_tiradas), corrida[0], label=f'Corrida {i}')
-        plt.xlabel('Cantidad de corridas')
+        plt.xlabel('Cantidad de tiradas')
         plt.ylabel('Frecuencia Relativa')
         plt.title('Frecuencia Relativa')
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=len(self.resultados), fancybox=True, shadow=True)
@@ -93,7 +92,7 @@ if not 0 <= numero_elegido <= 36:
     exit()
 
 if all(isinstance(arg, int) and arg >= 0 for arg in [cantidad_corridas, cantidad_tiradas, numero_elegido]):
-    ruleta = Ruleta(_numero_elegido=numero_elegido,_cantidad_tiradas=cantidad_tiradas, _cantidad_corridas=cantidad_corridas)
+    ruleta = Ruleta(numero_elegido, cantidad_tiradas, cantidad_corridas)
     ruleta.graficar_frecuencia_relativa()
     ruleta.graficar_promedio()
     ruleta.graficar_varianza()
