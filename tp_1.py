@@ -134,6 +134,7 @@ except ValueError as ve:
     print("Error en los argumentos de entrada:", ve)
     exit()
 
+
 ruleta = Ruleta(numero_elegido, cantidad_tiradas, cantidad_corridas)
 ruleta.graficar_frecuencia_relativa()
 ruleta.graficar_promedio()
