@@ -1,5 +1,7 @@
 # SIMULACION DE RULETA
 ### Autores: 
+    Ignacio Di Martino
+    Daniel O Ponce
 ## Instalar dependencias
 ```bash
 pip install -r requirements.txt
