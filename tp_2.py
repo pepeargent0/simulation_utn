@@ -11,12 +11,13 @@ def fibonacci(n):
         num_fibo.append(num_fibo[i-1]+num_fibo[i-2])
     return num_fibo[n]
 
-def martingala(numero_elgido, numero_resultado, nonto_apostar):
-    print(numero_elgido, numero_resultado, nonto_apostar)
+def martingala(numero_elgido, numero_resultado, monto_apostar):
+    print(numero_elgido, numero_resultado, monto_apostar)
     if numero_elgido == numero_resultado:
         return -1
-    return nonto_apostar*2
+    return monto_apostar*2
 def d_alembert(numero_elgido, numero_resultado, monto_apostar):
+    print('d_alembert',numero_elgido, numero_resultado, monto_apostar)
     if numero_elgido == numero_resultado:
         return monto_apostar-1
     return monto_apostar+1
@@ -207,7 +208,7 @@ except ValueError as ve:
     exit()
 
 
-ruleta = Ruleta(numero_elegido, cantidad_tiradas, cantidad_corridas, estrategia, tipo_capital
+ruleta = Ruleta(numero_elegido, cantidad_tiradas, cantidad_corridas, estrategia, tipo_capital)
 print('fin')
 """
 ruleta.graficar_frecuencia_relativa()
