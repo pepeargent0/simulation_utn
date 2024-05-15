@@ -3,7 +3,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-num_fibo= [0,1]
+num_fibo = [0,1]
 def fibonacci(n):
     if n == 0 or n == 1:
         return num_fibo[n]
@@ -68,7 +68,7 @@ class Ruleta:
         for i, tirada in enumerate(resultados, start=1):
             self.monto_apostar = self.ejecutar_estrategia(tirada)
 
-            if self.tipo_capital == 'f' and self.monto_apostar > monto_maximo:
+            if self.monto_apostar > monto_maximo:
                 self.bancas_rotas += 1
 
             if self.monto_apostar == -1:
@@ -175,40 +175,45 @@ class Ruleta:
         plt.show()
 
 
-# Manejo de argumentos de línea de comandos
-parser = argparse.ArgumentParser(description='Simulacion de ruleta')
-parser.add_argument('-c', '--numero_corridas', type=int, default=-1, help='Número de corridas (por defecto: 5)')
-parser.add_argument('-n', '--numero_tiradas', type=int, default=-1, help='Número de tiradas (por defecto: 100)')
-parser.add_argument('-e', '--numero_eleguido', type=int, default=0, help='Número elegido (por defecto: 0)')
-parser.add_argument('-s','--strategic', type=str, default='m', help='Ingrese la estregia que va a usar '
-                                                                    '(por defecto: m)')
-parser.add_argument('-a', '--capital', type=str, default='i', help='Ingrese la capital que va a '
-                                                                   'usar (por defecto: es infinito)')
-
+parser = argparse.ArgumentParser(description='Simulación de ruleta')
+parser.add_argument('-c', '--numero_corridas', type=int, default=3, help='Número de corridas (por defecto: 5)')
+parser.add_argument('-n', '--numero_tiradas', type=int, default=10, help='Número de tiradas (por defecto: 100)')
+parser.add_argument('-s', '--estrategia', type=str, default='m', help='Ingrese la estrategia que va a usar (por defecto: m)')
+parser.add_argument('-a', '--capital', type=str, default=None, help='Ingrese la capital que va a usar (por defecto: es infinito)')
+parser.add_argument('--color', type=str, choices=['rojo', 'negro'], help='Elija el color (rojo o negro)')
+parser.add_argument('--paridad', type=str, choices=['par', 'impar'], help='Elija la paridad (par o impar)')
+parser.add_argument('--alto_bajo', type=str, choices=['alto', 'bajo'], help='Elija si alto (19-36) o bajo (1-18)')
 args = parser.parse_args()
-cantidad_corridas, cantidad_tiradas, numero_elegido, estrategia, tipo_capital = (args.numero_corridas,
-                                                                                 args.numero_tiradas,
-                                                                                 args.numero_eleguido,
-                                                                                 args.strategic,
-                                                                                 args.capital)
+cantidad_corridas = args.numero_corridas
+cantidad_tiradas = args.numero_tiradas
+estrategia = args.estrategia
+tipo_capital = args.capital
+color = args.color
+paridad = args.paridad
+alto_bajo = args.alto_bajo
 try:
+    if color and color not in ['rojo', 'negro']:
+        raise ValueError("--color debe ser rojo o negro")
     if cantidad_corridas < 0:
         raise ValueError("-c debe ser un entero positivo")
     if cantidad_tiradas < 0:
         raise ValueError("-n debe ser un entero positivo")
-    if not 0 <= numero_elegido <= 36:
-        raise ValueError("-e debe ser un entero positivo entre 0 y 36")
+
     if estrategia not in ['m','d','f','o']:
         raise ValueError("-s debe ser m, d, f, u o")
-    if tipo_capital not in ['i','f']:
-        raise ValueError("-a los posibles valores son i o f")
+    if not tipo_capital:
+        tipo_capital = 1000000
+
+    if (color and paridad) or (color and alto_bajo) or (paridad and alto_bajo):
+        raise ValueError("Solo puede elegir una opción entre color, paridad, y alto/bajo")
+
 
 except ValueError as ve:
     print("Error en los argumentos de entrada:", ve)
     exit()
 
 
-ruleta = Ruleta(numero_elegido, cantidad_tiradas, cantidad_corridas, estrategia, tipo_capital)
+ruleta = Ruleta('numero_elegido', cantidad_tiradas, cantidad_corridas, estrategia, tipo_capital)
 print('fin')
 """
 ruleta.graficar_frecuencia_relativa()
