@@ -3,52 +3,64 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-num_fibo = [0,1]
+num_fibo = [0, 1]
+
+
 def fibonacci(n):
     if n == 0 or n == 1:
         return num_fibo[n]
-    for i in range(2, n+1):
-        num_fibo.append(num_fibo[i-1]+num_fibo[i-2])
+    for i in range(2, n + 1):
+        num_fibo.append(num_fibo[i - 1] + num_fibo[i - 2])
     return num_fibo[n]
+
 
 def martingala(numero_elgido, numero_resultado, monto_apostar):
     print(numero_elgido, numero_resultado, monto_apostar)
     if numero_elgido == numero_resultado:
         return -1
-    return monto_apostar*2
+    return monto_apostar * 2
+
+
 def d_alembert(numero_elgido, numero_resultado, monto_apostar):
-    print('d_alembert',numero_elgido, numero_resultado, monto_apostar)
+    print('d_alembert', numero_elgido, numero_resultado, monto_apostar)
     if numero_elgido == numero_resultado:
-        return monto_apostar-1
-    return monto_apostar+1
+        return monto_apostar - 1
+    return monto_apostar + 1
+
 
 def fibonacci_estrategia(numero_elgido, numero_resultado, monto_apostar):
     if numero_elgido != numero_resultado:
-        return fibonacci(monto_apostar+1)
+        return fibonacci(monto_apostar + 1)
     return monto_apostar
 
+
 monto_maximo = 1000000
+
+
 class Ruleta:
-    def __init__(self, _numero_elegido, _cantidad_tiradas, _cantidad_corridas, _estrategia, _tipo_capital):
+    def __init__(self, _cantidad_tiradas, _cantidad_corridas, _estrategia, _tipo_capital, _criterio=[], _apuesta_inicial=1):
         """
         Inicializa una instancia de la clase Ruleta.
 
         Parámetros:
-            numero_elegido (int): Número elegido en la ruleta.
-            cantidad_tiradas (int): Cantidad de tiradas por corrida.
-            cantidad_corridas (int): Cantidad de corridas a simular.
-
+            _cantidad_tiradas (int): Cantidad de tiradas por corrida.
+            _cantidad_corridas (int): Cantidad de corridas a simular.
+            _estrategia (str): Estrategia que se utilizará en la simulación.
+            _tipo_capital (str): Tipo de capital que se utilizará en la simulación.
+            _criterio (int, opcional): Criterio que determina cuándo termina una corrida (por ejemplo, una cantidad mínima de capital).
+            _apuesta_inicial (int, opcional): La cantidad de apuesta inicial con la que se comenzará en cada corrida.
         """
-        self.numero_elegido = _numero_elegido
         self.cantidad_tiradas = _cantidad_tiradas
         self.cantidad_corridas = _cantidad_corridas
         self.estrategia = _estrategia
         self.tipo_capital = _tipo_capital
+        self.criterio = _criterio
+        self.monto_apostar = _apuesta_inicial  # El monto de la apuesta inicial
         self.bancas_rotas = 0
-        self.monto_apostar = 1
         self.ganadas_mg = 0
         try:
-            self.resultados = self._simular_corridas()
+            pass
+            # self.resultados = self._simular_corridas()
         except Exception as e:
             print("Error al simular las corridas:", e)
 
@@ -178,11 +190,15 @@ class Ruleta:
 parser = argparse.ArgumentParser(description='Simulación de ruleta')
 parser.add_argument('-c', '--numero_corridas', type=int, default=3, help='Número de corridas (por defecto: 5)')
 parser.add_argument('-n', '--numero_tiradas', type=int, default=10, help='Número de tiradas (por defecto: 100)')
-parser.add_argument('-s', '--estrategia', type=str, default='m', help='Ingrese la estrategia que va a usar (por defecto: m)')
-parser.add_argument('-a', '--capital', type=str, default=None, help='Ingrese la capital que va a usar (por defecto: es infinito)')
+parser.add_argument('-s', '--estrategia', type=str, default='m',
+                    help='Ingrese la estrategia que va a usar (por defecto: m)')
+parser.add_argument('-a', '--capital', type=str, default=None,
+                    help='Ingrese la capital que va a usar (por defecto: es infinito)')
+parser.add_argument('--apuesta', type=float, default=1, help='Ingrese la capital que va a apostar (por defecto: 1)')
 parser.add_argument('--color', type=str, choices=['rojo', 'negro'], help='Elija el color (rojo o negro)')
 parser.add_argument('--paridad', type=str, choices=['par', 'impar'], help='Elija la paridad (par o impar)')
 parser.add_argument('--alto_bajo', type=str, choices=['alto', 'bajo'], help='Elija si alto (19-36) o bajo (1-18)')
+
 args = parser.parse_args()
 cantidad_corridas = args.numero_corridas
 cantidad_tiradas = args.numero_tiradas
@@ -191,29 +207,57 @@ tipo_capital = args.capital
 color = args.color
 paridad = args.paridad
 alto_bajo = args.alto_bajo
+apuesta_minimo = args.apuesta
 try:
+    if not color and not paridad and not alto_bajo:
+        raise ValueError("Se requiere definir criterio de apuesta: color O paridad O alto_bajo")
+
     if color and color not in ['rojo', 'negro']:
         raise ValueError("--color debe ser rojo o negro")
+    if paridad and paridad not in ['par', 'impar']:
+        raise ValueError("--paridad debe ser par o impar")
+
+    if alto_bajo and alto_bajo not in ['alto', 'bajo']:
+        raise ValueError("--alto_bajo debe ser alto o bajo")
+
     if cantidad_corridas < 0:
         raise ValueError("-c debe ser un entero positivo")
     if cantidad_tiradas < 0:
         raise ValueError("-n debe ser un entero positivo")
 
-    if estrategia not in ['m','d','f','o']:
-        raise ValueError("-s debe ser m, d, f, u o")
-    if not tipo_capital:
+    if estrategia not in ['m', 'd', 'f', 'o']:
+        raise ValueError("-s debe ser m, d, f, u p")
+
+    if tipo_capital is None:
         tipo_capital = 1000000
 
     if (color and paridad) or (color and alto_bajo) or (paridad and alto_bajo):
         raise ValueError("Solo puede elegir una opción entre color, paridad, y alto/bajo")
+    criterio = []
+    if color:
+        if color == 'rojo':
+            criterio = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
+        else:
+            criterio = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
 
+    if paridad:
+        if paridad == 'par':
+            criterio = [x for x in range(37) if x % 2 == 0]
+        else:
+            criterio = [x for x in range(37) if x % 2 != 0]
+
+    if alto_bajo:
+        if alto_bajo == 'alto':
+            criterio = [x for x in range(19, 37)]
+        else:
+            criterio = [x for x in range(1, 19)]
 
 except ValueError as ve:
     print("Error en los argumentos de entrada:", ve)
     exit()
 
+ruleta = Ruleta( _cantidad_tiradas=cantidad_tiradas, _cantidad_corridas=cantidad_corridas, _estrategia=estrategia, _tipo_capital=tipo_capital, _criterio=criterio, _apuesta_inicial=apuesta_minimo)
 
-ruleta = Ruleta('numero_elegido', cantidad_tiradas, cantidad_corridas, estrategia, tipo_capital)
 print('fin')
 """
 ruleta.graficar_frecuencia_relativa()
@@ -222,7 +266,8 @@ ruleta.graficar_varianza()
 ruleta.graficar_desvio()
 """
 """
-links https://liquidity-provider.com/es/articles/what-is-the-martingale-strategy-in-trading/#:~:text=La%20estrategia%20Martingala%20consiste%20en,una%20cantidad%20infinita%20de%20capital.
+links https://liquidity-provider.com/es/articles/what-is-the-martingale-strategy-
+in-trading/#:~:text=La%20estrategia%20Martingala%20consiste%20en,una%20cantidad%20infinita%20de%20capital.
 https://mundoruleta.es/guia/dalembert/
 https://mundoruleta.es/guia/fibonacci/
 https://blog.bodog.com/es/sistema-andrucci/
