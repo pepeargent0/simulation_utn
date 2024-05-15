@@ -272,16 +272,30 @@ plt.grid(True)
 plt.legend()
 plt.show()
 
-"""
-ruleta.graficar_frecuencia_relativa()
-ruleta.graficar_promedio()
-ruleta.graficar_varianza()
-ruleta.graficar_desvio()
-"""
-"""
-links https://liquidity-provider.com/es/articles/what-is-the-martingale-strategy-
-in-trading/#:~:text=La%20estrategia%20Martingala%20consiste%20en,una%20cantidad%20infinita%20de%20capital.
-https://mundoruleta.es/guia/dalembert/
-https://mundoruleta.es/guia/fibonacci/
-https://blog.bodog.com/es/sistema-andrucci/
-"""
+
+
+montos_apostados = [monto for corrida in resultados_todas_corridas for monto in corrida]
+
+# Graficar el histograma de frecuencias de los montos apostados
+plt.figure(figsize=(10, 6))
+plt.hist(montos_apostados, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
+plt.title('Histograma de frecuencias de montos apostados en todas las corridas')
+plt.xlabel('Monto apostado')
+plt.ylabel('Frecuencia')
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(10, 6))
+for i, corrida in enumerate(resultados_todas_corridas, start=1):
+    dinero_por_tirada = []
+    dinero_acumulado = ruleta.tipo_capital if ruleta.tipo_capital else 0
+    for monto_apuesta in corrida:
+        dinero_acumulado -= monto_apuesta
+        dinero_por_tirada.append(dinero_acumulado)
+    plt.plot(range(1, len(dinero_por_tirada) + 1), dinero_por_tirada, label=f'Corrida {i}')
+plt.title('Evolución del dinero en cada corrida')
+plt.xlabel('Número de tiradas')
+plt.ylabel('Dinero disponible')
+plt.legend()
+plt.grid(True)
+plt.show()
