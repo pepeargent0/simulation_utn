@@ -14,27 +14,34 @@ def fibonacci(n):
     return num_fibo[n]
 
 
-def martingala(numero_elgido, numero_resultado, monto_apostar):
-    print(numero_elgido, numero_resultado, monto_apostar)
-    if numero_elgido == numero_resultado:
-        return -1
-    return monto_apostar * 2
-
-
-def d_alembert(numero_elgido, numero_resultado, monto_apostar):
-    print('d_alembert', numero_elgido, numero_resultado, monto_apostar)
-    if numero_elgido == numero_resultado:
-        return monto_apostar - 1
-    return monto_apostar + 1
-
-
-def fibonacci_estrategia(numero_elgido, numero_resultado, monto_apostar):
-    if numero_elgido != numero_resultado:
+def fibonacci_estrategia(numero_elegido, numero_resultado, monto_apostar):
+    if numero_elegido != numero_resultado:
         return fibonacci(monto_apostar + 1)
     return monto_apostar
 
+def martingala(criterio, numero_resultado, monto_apostar):
+    if numero_resultado in criterio:
+        return monto_apostar
+    else:
+        return monto_apostar * 2
 
-monto_maximo = 1000000
+
+def paroli(criterio, numero_resultado, monto_apostar):
+    if numero_resultado in criterio:
+        return monto_apostar * 2
+    return monto_apostar
+
+def d_alembert(criterio, numero_resultado, monto_apostar):
+    if numero_resultado in criterio:
+        return max(1, monto_apostar - 1)
+    return monto_apostar + 1
+
+
+def fibonacci_estrategia(criterio, numero_resultado, monto_apostar):
+    if numero_resultado not in criterio:
+        return fibonacci(monto_apostar + 1)
+    return monto_apostar
+
 
 
 class Ruleta:
@@ -55,70 +62,45 @@ class Ruleta:
         self.estrategia = _estrategia
         self.tipo_capital = _tipo_capital
         self.criterio = _criterio
-        self.monto_apostar = _apuesta_inicial  # El monto de la apuesta inicial
+        self.monto_apostar = _apuesta_inicial
         self.bancas_rotas = 0
         self.ganadas_mg = 0
         try:
-            pass
-            # self.resultados = self._simular_corridas()
+            self.resultados = self._simular_corridas()
         except Exception as e:
             print("Error al simular las corridas:", e)
+
 
     def simular_corrida(self):
         """
         Simula una corrida de la ruleta y calcula las medidas estadísticas.
-
-        Retorna:
-            tuple: Tupla conteniendo las listas de frecuencia relativa, promedio, varianza y desvío.
         """
-        resultados = [random.randint(0, 36) for _ in range(self.cantidad_tiradas)]
-        contador_numero_elegido = 0
-        frecuencias_relativas = []
-        promedios = []
-        varianzas = []
-        desvios = []
-        for i, tirada in enumerate(resultados, start=1):
-            self.monto_apostar = self.ejecutar_estrategia(tirada)
+        try:
+            resultados = [random.randint(0, 36) for _ in range(self.cantidad_tiradas)]
 
-            if self.monto_apostar > monto_maximo:
-                self.bancas_rotas += 1
+            for tirada in resultados:
 
-            if self.monto_apostar == -1:
-                self.ganadas_mg += 1
-                print('gano con martin gala')
-                self.monto_apostar = 1
+                if self.estrategia == 'm':
+                    self.monto_apostar = martingala(self.criterio, tirada, self.monto_apostar)
 
-            if tirada == self.numero_elegido:
-                contador_numero_elegido += 1
-            frecuencia_relativa = contador_numero_elegido / i
-            frecuencias_relativas.append(frecuencia_relativa)
-            promedio = sum(resultados[:i]) / i
-            promedios.append(promedio)
-            varianza = sum((x - promedio) ** 2 for x in resultados[:i]) / i
-            varianzas.append(varianza)
-            desvio = np.sqrt(varianza)
-            desvios.append(desvio)
-        print(self.monto_apostar)
-        return frecuencias_relativas, promedios, varianzas, desvios
+                if self.estrategia == 'd':
+                    self.monto_apostar = d_alembert(self.criterio, tirada, self.monto_apostar)
 
-    def ejecutar_estrategia(self, numero_resultado):
-        """
-        Ejecuta la estrategia de apuesta especificada.
+                if self.estrategia == 'p':
+                    self.monto_apostar = paroli(self.criterio, tirada, self.monto_apostar)
 
-        Parámetros:
-            numero_resultado (int): Resultado de la tirada de la ruleta.
+                if self.estrategia == 'f':
+                    self.monto_apostar = fibonacci_estrategia(self.criterio, tirada, self.monto_apostar)
 
-        Retorna:
-            int: Monto de apuesta para la siguiente tirada.
-        """
+                if self.tipo_capital is not None:
+                    self.tipo_capital = float(self.tipo_capital)
+                    if self.monto_apostar > self.tipo_capital:
+                        self.bancas_rotas = self.bancas_rotas + 1
 
-        estrategias = {
-            'm': martingala(self.numero_elegido, numero_resultado, self.monto_apostar),
-            'd': d_alembert(self.numero_elegido, numero_resultado, self.monto_apostar),
-            'f': fibonacci_estrategia(self.numero_elegido, numero_resultado, self.monto_apostar),
-            'o': 0
-        }
-        return estrategias[self.estrategia]
+        except IndexError as e:
+            print("Error al simular las corridas:", e)
+
+
 
     def _simular_corridas(self):
         """
@@ -194,7 +176,7 @@ parser.add_argument('-s', '--estrategia', type=str, default='m',
                     help='Ingrese la estrategia que va a usar (por defecto: m)')
 parser.add_argument('-a', '--capital', type=str, default=None,
                     help='Ingrese la capital que va a usar (por defecto: es infinito)')
-parser.add_argument('--apuesta', type=float, default=1, help='Ingrese la capital que va a apostar (por defecto: 1)')
+parser.add_argument('--apuesta', type=float, default=2, help='Ingrese la capital que va a apostar (por defecto: 1)')
 parser.add_argument('--color', type=str, choices=['rojo', 'negro'], help='Elija el color (rojo o negro)')
 parser.add_argument('--paridad', type=str, choices=['par', 'impar'], help='Elija la paridad (par o impar)')
 parser.add_argument('--alto_bajo', type=str, choices=['alto', 'bajo'], help='Elija si alto (19-36) o bajo (1-18)')
@@ -225,11 +207,8 @@ try:
     if cantidad_tiradas < 0:
         raise ValueError("-n debe ser un entero positivo")
 
-    if estrategia not in ['m', 'd', 'f', 'o']:
+    if estrategia not in ['m', 'd', 'f', 'p']:
         raise ValueError("-s debe ser m, d, f, u p")
-
-    if tipo_capital is None:
-        tipo_capital = 1000000
 
     if (color and paridad) or (color and alto_bajo) or (paridad and alto_bajo):
         raise ValueError("Solo puede elegir una opción entre color, paridad, y alto/bajo")
@@ -255,10 +234,13 @@ try:
 except ValueError as ve:
     print("Error en los argumentos de entrada:", ve)
     exit()
+print(apuesta_minimo, 'minimo')
+ruleta = Ruleta(_cantidad_tiradas=cantidad_tiradas, _cantidad_corridas=cantidad_corridas, _estrategia=estrategia,
+                 _tipo_capital=tipo_capital, _criterio=criterio, _apuesta_inicial=apuesta_minimo)
 
-ruleta = Ruleta( _cantidad_tiradas=cantidad_tiradas, _cantidad_corridas=cantidad_corridas, _estrategia=estrategia, _tipo_capital=tipo_capital, _criterio=criterio, _apuesta_inicial=apuesta_minimo)
-
-print('fin')
+if tipo_capital:
+    print('num bancarotas: ',ruleta.bancas_rotas)
+print('ultima apuesta: ',ruleta.monto_apostar)
 """
 ruleta.graficar_frecuencia_relativa()
 ruleta.graficar_promedio()
