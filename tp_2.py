@@ -75,6 +75,7 @@ class Ruleta:
         """
         Simula una corrida de la ruleta y calcula las medidas estadísticas.
         """
+        resultados_corrida = []
         try:
             resultados = [random.randint(0, 36) for _ in range(self.cantidad_tiradas)]
 
@@ -96,9 +97,12 @@ class Ruleta:
                     self.tipo_capital = float(self.tipo_capital)
                     if self.monto_apostar > self.tipo_capital:
                         self.bancas_rotas = self.bancas_rotas + 1
+                resultados_corrida.append(self.monto_apostar)
 
         except IndexError as e:
             print("Error al simular las corridas:", e)
+
+        return resultados_corrida
 
 
 
@@ -241,6 +245,33 @@ ruleta = Ruleta(_cantidad_tiradas=cantidad_tiradas, _cantidad_corridas=cantidad_
 if tipo_capital:
     print('num bancarotas: ',ruleta.bancas_rotas)
 print('ultima apuesta: ',ruleta.monto_apostar)
+resultados_todas_corridas = ruleta.resultados
+dinero_por_tirada_todas_corridas = []
+
+# Recorrer cada corrida
+for corrida in resultados_todas_corridas:
+    dinero_acumulado = 0  # Inicializar el dinero acumulado en cada corrida
+    dinero_por_tirada_corrida = []  # Inicializar una lista para almacenar la evolución del dinero en la corrida actual
+
+    # Recorrer cada tirada de la corrida actual
+    for monto_apuesta in corrida:
+        dinero_acumulado -= monto_apuesta  # Restar el monto apostado al dinero acumulado
+        dinero_por_tirada_corrida.append(dinero_acumulado)  # Agregar el dinero acumulado en esta tirada a la lista
+
+    dinero_por_tirada_todas_corridas.append(
+        dinero_por_tirada_corrida)  # Agregar la lista de dinero por tirada de la corrida a la lista de todas las corridas
+
+# Graficar la evolución del dinero en cada tirada de todas las corridas
+plt.figure(figsize=(10, 6))
+for i, corrida in enumerate(dinero_por_tirada_todas_corridas, start=1):
+    plt.plot(range(1, len(corrida) + 1), corrida, label=f'Corrida {i}')
+plt.title('Evolución del dinero en todas las corridas')
+plt.xlabel('Número de tiradas')
+plt.ylabel('Dinero disponible')
+plt.grid(True)
+plt.legend()
+plt.show()
+
 """
 ruleta.graficar_frecuencia_relativa()
 ruleta.graficar_promedio()
