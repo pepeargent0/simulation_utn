@@ -180,7 +180,7 @@ parser.add_argument('-s', '--estrategia', type=str, default='m',
                     help='Ingrese la estrategia que va a usar (por defecto: m)')
 parser.add_argument('-a', '--capital', type=str, default=None,
                     help='Ingrese la capital que va a usar (por defecto: es infinito)')
-parser.add_argument('--apuesta', type=float, default=2, help='Ingrese la capital que va a apostar (por defecto: 1)')
+parser.add_argument('--apuesta', type=float, default=1, help='Ingrese la capital que va a apostar (por defecto: 1)')
 parser.add_argument('--color', type=str, choices=['rojo', 'negro'], help='Elija el color (rojo o negro)')
 parser.add_argument('--paridad', type=str, choices=['par', 'impar'], help='Elija la paridad (par o impar)')
 parser.add_argument('--alto_bajo', type=str, choices=['alto', 'bajo'], help='Elija si alto (19-36) o bajo (1-18)')
