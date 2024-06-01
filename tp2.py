@@ -101,10 +101,26 @@ class RandomNumber:
         return d_stat, p_value
 
 
+# Función para ejecutar pruebas
+def run_tests(rng):
+    chi2_stat, p_value_chi2 = rng.chi_square_test()
+    runs_stat, p_value_runs = rng.runs_test()
+    autocorr = rng.autocorrelation_test()
+    ks_stat, p_value_ks = rng.ks_test()
+
+    print(f"{rng.method}:")
+    print(f"  Chi-Square Test: Statistic={chi2_stat}, p-value={p_value_chi2}")
+    print(f"  Runs Test: Statistic={runs_stat}, p-value={p_value_runs}")
+    print(f"  Autocorrelation Test: lag=1, autocorrelation={autocorr}")
+    print(f"  Kolmogorov-Smirnov Test: Statistic={ks_stat}, p-value={p_value_ks}")
+    print()
+
+
+
+num_numbers = 1000000  # Ajusta el número de números a generar
+
 methods = ['middle_square', 'lcg', 'mersenne_twister', 'xorshift']
 for method in methods:
-    rng = RandomNumber(1000, method)
+    rng = RandomNumber(num_numbers, method)
     numbers = rng.generate()
-    print(f"{method} - primeros 10 números: {numbers[:10]}")
-    chi2_stat, p_value = rng.chi_square_test()
-    print(f"{method} - Chi-Square Test: Statistic={chi2_stat}, p-value={p_value}")
+    run_tests(rng)
