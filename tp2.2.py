@@ -82,21 +82,14 @@ class RandomNumberGenerator:
         return expected_freq
 
     def chi_square_test(self):
-        if self.dist_name in ['uniform', 'normal', 'pascal', 'binomial', 'poisson', 'empirical_discrete']:
-            observed_freq, bins = np.histogram(self.numbers, bins='auto', density=False)
-            expected_freq = self._expected_frequencies(len(self.numbers), bins)
-
-            chi2_stat, p_value = chisquare(observed_freq, expected_freq)
-            return chi2_stat, p_value
-        else:
-            raise ValueError(f"Chi-Square Test no es soportado para la distribución {self.dist_name}")
+        observed_freq, bins = np.histogram(self.numbers, bins='auto', density=False)
+        expected_freq = self._expected_frequencies(len(self.numbers), bins)
+        chi2_stat, p_value = chisquare(observed_freq, expected_freq)
+        return chi2_stat, p_value
 
     def ks_test(self):
-        if self.dist_name in ['uniform', 'normal', 'pascal', 'binomial', 'poisson', 'empirical_discrete','exponential']:
-            d_stat, p_value = kstest(self.numbers, 'uniform')
-            return d_stat, p_value
-        else:
-            raise ValueError(f"Kolmogorov-Smirnov Test no es soportado para la distribución {self.dist_name}")
+        d_stat, p_value = kstest(self.numbers, 'uniform')
+        return d_stat, p_value
 
 distributions = [
     ('uniform', {'a': 0, 'b': 1}),
@@ -111,21 +104,6 @@ distributions = [
 for dist_name, params in distributions:
     rng = RandomNumberGenerator(dist_name, **params)
     numbers = rng.generate(size=1000)
-    #print(f"Generated numbers for {dist_name}: {numbers}")
-    if dist_name in ['uniform', 'normal']:
-        d_stat, p_value = rng.ks_test()
-        print(f"{dist_name} - Kolmogorov-Smirnov Test: Statistic={d_stat}, p-value={p_value}")
-    else:
-        chi2_stat, p_value = rng.chi_square_test()
-        print(f"{dist_name} - Chi-Square Test: Statistic={chi2_stat}, p-value={p_value}")
-    """try:
-        chi2_stat, p_value = rng.chi_square_test()
-        print(f"{dist_name} - Chi-Square Test: Statistic={chi2_stat}, p-value={p_value}")
-    except ValueError as e:
-        print(e)
+    d_stat, p_value = rng.ks_test()
+    print(f"{dist_name} - Kolmogorov-Smirnov Test: Statistic={d_stat}, p-value={p_value}")
 
-    try:
-        d_stat, p_value = rng.ks_test()
-        print(f"{dist_name} - Kolmogorov-Smirnov Test: Statistic={d_stat}, p-value={p_value}")
-    except ValueError as e:
-        print(e)"""
