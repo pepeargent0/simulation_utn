@@ -100,27 +100,42 @@ class RandomNumber:
         d_stat, p_value = kstest(self.numbers, 'uniform', args=(min(self.numbers), max(self.numbers) - min(self.numbers)))
         return d_stat, p_value
 
-
-# Función para ejecutar pruebas
+# Función para ejecutar pruebas y recolectar resultados
 def run_tests(rng):
     chi2_stat, p_value_chi2 = rng.chi_square_test()
     runs_stat, p_value_runs = rng.runs_test()
     autocorr = rng.autocorrelation_test()
     ks_stat, p_value_ks = rng.ks_test()
 
-    print(f"{rng.method}:")
-    print(f"  Chi-Square Test: Statistic={chi2_stat}, p-value={p_value_chi2}")
-    print(f"  Runs Test: Statistic={runs_stat}, p-value={p_value_runs}")
-    print(f"  Autocorrelation Test: lag=1, autocorrelation={autocorr}")
-    print(f"  Kolmogorov-Smirnov Test: Statistic={ks_stat}, p-value={p_value_ks}")
-    print()
+    return {
+        "method": rng.method,
+        "chi_square_stat": chi2_stat,
+        "p_value_chi2": p_value_chi2,
+        "runs_stat": runs_stat,
+        "p_value_runs": p_value_runs,
+        "autocorr": autocorr,
+        "ks_stat": ks_stat,
+        "p_value_ks": p_value_ks
+    }
 
-
-
-num_numbers = 1000000  # Ajusta el número de números a generar
+num_numbers = 10000  # Ajusta el número de números a generar
 
 methods = ['middle_square', 'lcg', 'mersenne_twister', 'xorshift']
+results = []
 for method in methods:
     rng = RandomNumber(num_numbers, method)
     numbers = rng.generate()
-    run_tests(rng)
+    result = run_tests(rng)
+    results.append(result)
+
+# Crear tabla de resultados
+print("\nTabla de resultados:\n")
+print(f"{'Generador':<20} {'Chi-Square':<15} {'Runs Test':<15} {'Autocorr':<15} {'K-S Test':<15}")
+print("=" * 80)
+for result in results:
+    chi2 = f"{result['p_value_chi2']:<15.4f}" if result['p_value_chi2'] is not None else "N/A".ljust(15)
+    runs = f"{result['p_value_runs']:<15.4f}" if result['p_value_runs'] is not None else "N/A".ljust(15)
+    autocorr = f"{result['autocorr']:<15.4f}" if result['autocorr'] is not None else "N/A".ljust(15)
+    ks = f"{result['p_value_ks']:<15.4f}" if result['p_value_ks'] is not None else "N/A".ljust(15)
+
+    print(f"{result['method']:<20} {chi2} {runs} {autocorr} {ks}")
